@@ -48,7 +48,15 @@ PhysicalDevice PhysicalDevice::GetBestGPU(const Instance& instance) {
 }
 
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device)
-    : physical_device_(physical_device) {}
+    : physical_device_(physical_device) {
+  uint32_t queue_family_count = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(physical_device_,
+                                           &queue_family_count, nullptr);
+  queue_families_ =
+      std::move(std::vector<VkQueueFamilyProperties>(queue_family_count));
+  vkGetPhysicalDeviceQueueFamilyProperties(
+      physical_device_, &queue_family_count, queue_families_.data());
+}
 
 VkDeviceSize PhysicalDevice::GetHeapSize() const {
   VkPhysicalDeviceMemoryProperties device_props;
@@ -61,20 +69,4 @@ VkDeviceSize PhysicalDevice::GetHeapSize() const {
     }
   }
   return total_size;
-}
-
-PhysicalDevice::QueueFamily PhysicalDevice::GetGraphicsQueueFamily() const {
-  uint32_t queue_family_count = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(physical_device_,
-                                           &queue_family_count, nullptr);
-  std::vector<VkQueueFamilyProperties> queue_family_props(queue_family_count);
-  vkGetPhysicalDeviceQueueFamilyProperties(
-      physical_device_, &queue_family_count, queue_family_props.data());
-
-  for (uint32_t i = 0; i < queue_family_props.size(); ++i) {
-    if (queue_family_props[i].queueFlags &
-        VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT) {
-      return {.index = i, .count = queue_family_props[i].queueCount};
-    }
-  }
 }
