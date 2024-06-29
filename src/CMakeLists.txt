@@ -13,7 +13,7 @@ project ("VulkanSandbox")
 
 set(SOURCES
   "main.cpp"
- "physical_device.h" "physical_device.cpp" "instance.h" "instance.cpp" "logical_device.h" "logical_device.cpp")
+ "vulkan_wrappers/physical_device.h" "vulkan_wrappers/physical_device.cpp" "vulkan_wrappers/instance.h" "vulkan_wrappers/instance.cpp" "vulkan_wrappers/logical_device.h" "vulkan_wrappers/logical_device.cpp" "window.h" "window.cpp" "vulkan_wrappers/surface.h" "vulkan_wrappers/surface.cpp" "core.h")
 
 set(VULKAN_SDK "C:/VulkanSDK/1.3.283.0")
 include_directories(${VULKAN_SDK}/Include)
@@ -21,10 +21,10 @@ link_directories(${VULKAN_SDK}/Lib)
 
 find_library(Vulkan_LIBRARY NAMES vulkan-1 PATHS ${VULKAN_SDK}/Lib)
 
-add_executable (VulkanSandbox  ${SOURCES})
+add_executable (VulkanSandbox ${SOURCES})
 target_precompile_headers(VulkanSandbox PRIVATE "stdafx.h")
 target_link_libraries(VulkanSandbox ${Vulkan_LIBRARY})
-
+target_include_directories(VulkanSandbox PRIVATE ${Vulkan_LIBRARY} ${CMAKE_SOURCE_DIR})
 
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

@@ -1,6 +1,6 @@
 #include "instance.h"
 
-Instance Instance::Create() {
+Ptr<Instance> Instance::Create() {
   VkApplicationInfo app_info = {
       .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
       .pNext = nullptr,
@@ -10,6 +10,7 @@ Instance Instance::Create() {
       .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0),
       .apiVersion = VK_API_VERSION_1_3};
 
+  std::vector<const char*> extensions{VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
   VkInstanceCreateInfo instance_info = {
       .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
       .pNext = nullptr,
@@ -17,12 +18,12 @@ Instance Instance::Create() {
       .pApplicationInfo = &app_info,
       .enabledLayerCount = 0,
       .ppEnabledLayerNames = nullptr,
-      .enabledExtensionCount = 0,
-      .ppEnabledExtensionNames = nullptr};
+      .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+      .ppEnabledExtensionNames = extensions.data()};
 
   VkInstance instance = nullptr;
-  vkCreateInstance(&instance_info, nullptr, &instance);
-  return Instance(instance);
+  VkResult result = vkCreateInstance(&instance_info, nullptr, &instance);
+  return std::make_shared<Instance>(instance);
 }
 
 Instance::~Instance() { vkDestroyInstance(instance_, nullptr); }

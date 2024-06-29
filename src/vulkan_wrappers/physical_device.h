@@ -3,10 +3,9 @@
 
 class PhysicalDevice {
  public:
-  // Factory method to enumerate discrete GPUs
   static std::vector<PhysicalDevice> EnumerateDiscreteGPUs(
-      const Instance& instance);
-  static PhysicalDevice GetBestGPU(const Instance& instance);
+      Ptr<Instance> instance);
+  static Ptr<PhysicalDevice> GetBestGPU(Ptr<Instance> instance);
 
   explicit PhysicalDevice(VkPhysicalDevice physical_device);
 

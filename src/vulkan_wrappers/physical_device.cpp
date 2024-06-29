@@ -1,12 +1,12 @@
 #include "physical_device.h"
 
 std::vector<PhysicalDevice> PhysicalDevice::EnumerateDiscreteGPUs(
-    const Instance& instance) {
+    Ptr<Instance> instance) {
   uint32_t physical_device_count = 0;
-  vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr);
+  vkEnumeratePhysicalDevices(*instance, &physical_device_count, nullptr);
 
   std::vector<VkPhysicalDevice> physical_devices(physical_device_count);
-  vkEnumeratePhysicalDevices(instance, &physical_device_count,
+  vkEnumeratePhysicalDevices(*instance, &physical_device_count,
                              physical_devices.data());
 
   std::vector<PhysicalDevice> discrete_gpus;
@@ -25,12 +25,12 @@ std::vector<PhysicalDevice> PhysicalDevice::EnumerateDiscreteGPUs(
   return discrete_gpus;
 }
 
-PhysicalDevice PhysicalDevice::GetBestGPU(const Instance& instance) {
+Ptr<PhysicalDevice> PhysicalDevice::GetBestGPU(Ptr<Instance> instance) {
   auto discrete_gpus = PhysicalDevice::EnumerateDiscreteGPUs(instance);
 
   // No discrete GPUs found
   if (discrete_gpus.empty()) {
-    return PhysicalDevice(nullptr);
+    return std::make_shared<PhysicalDevice>(nullptr);
   }
 
   // Calculate size of each discrete GPU
@@ -44,7 +44,7 @@ PhysicalDevice PhysicalDevice::GetBestGPU(const Instance& instance) {
       discrete_gpu_sizes.begin(),
       std::max_element(discrete_gpu_sizes.begin(), discrete_gpu_sizes.end()));
 
-  return discrete_gpus[best_gpu_index];
+  return std::make_shared<PhysicalDevice>(discrete_gpus[best_gpu_index]);
 }
 
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device)

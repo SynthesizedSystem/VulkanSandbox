@@ -2,16 +2,17 @@
 
 class Instance {
  public:
-  static Instance Create();
+  static Ptr<Instance> Create();
 
   operator VkInstance() const { return instance_; }
 
+  explicit Instance(VkInstance instance);
   Instance(const Instance&) = delete;
+  Instance(const Instance&&) = delete;
   Instance& operator=(const Instance&) = delete;
+  Instance&& operator=(const Instance&&) = delete;
   ~Instance();
 
  private:
-  explicit Instance(VkInstance instance);
-
   VkInstance instance_ = nullptr;
 };

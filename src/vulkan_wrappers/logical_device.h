@@ -19,21 +19,22 @@ class LogicalDevice {
     uint32_t count;
   };
 
-  static LogicalDevice CreateLogicalDevice(
-      PhysicalDevice gpu, const std::vector<uint32_t>& queue_family_types);
+  static Ptr<LogicalDevice> Create(
+      Ptr<PhysicalDevice> gpu, const std::vector<uint32_t>& queue_family_types);
 
   operator VkDevice() const { return logical_device_; }
 
+  explicit LogicalDevice(VkDevice logical_device,
+                         const std::vector<QueueFamily>&& queue_families);
   LogicalDevice(const LogicalDevice&) = delete;
+  LogicalDevice(const LogicalDevice&&) = delete;
   LogicalDevice& operator=(const LogicalDevice&) = delete;
+  LogicalDevice&& operator=(const LogicalDevice&&) = delete;
   ~LogicalDevice();
 
   const QueueFamily& GetQueueFamily(uint32_t type) const;
 
  private:
-  explicit LogicalDevice(VkDevice logical_device,
-                         std::vector<QueueFamily>&& queue_families);
-
   VkDevice logical_device_ = nullptr;
   std::vector<QueueFamily> queue_families_;
 };

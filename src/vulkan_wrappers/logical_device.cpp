@@ -1,12 +1,12 @@
 #include "logical_device.h"
 
-LogicalDevice LogicalDevice::CreateLogicalDevice(
-    PhysicalDevice gpu, const std::vector<uint32_t>& queue_family_types) {
+Ptr<LogicalDevice> LogicalDevice::Create(
+    Ptr<PhysicalDevice> gpu, const std::vector<uint32_t>& queue_family_types) {
   uint32_t queue_family_count = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_family_count, nullptr);
+  vkGetPhysicalDeviceQueueFamilyProperties(*gpu, &queue_family_count, nullptr);
   std::vector<VkQueueFamilyProperties> queue_family_properties(
       queue_family_count);
-  vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_family_count,
+  vkGetPhysicalDeviceQueueFamilyProperties(*gpu, &queue_family_count,
                                            queue_family_properties.data());
 
   std::vector<QueueFamily> queue_families;
@@ -32,8 +32,8 @@ LogicalDevice LogicalDevice::CreateLogicalDevice(
       .pEnabledFeatures = nullptr};
 
   VkDevice logical_device;
-  VkResult result = vkCreateDevice(gpu, &device_info, nullptr, &logical_device);
-  return LogicalDevice(logical_device, std::move(queue_families));
+  VkResult result = vkCreateDevice(*gpu, &device_info, nullptr, &logical_device);
+  return std::make_shared<LogicalDevice>(logical_device, std::move(queue_families));
 }
 
 LogicalDevice::~LogicalDevice() { vkDestroyDevice(logical_device_, nullptr); }
@@ -49,7 +49,7 @@ const LogicalDevice::QueueFamily& LogicalDevice::GetQueueFamily(
 }
 
 LogicalDevice::LogicalDevice(VkDevice logical_device,
-                             std::vector<QueueFamily>&& queue_families)
+                             const std::vector<QueueFamily>&& queue_families)
     : logical_device_(logical_device), queue_families_(queue_families) {}
 
 bool LogicalDevice::QueueFamily::IsQueueFamilySuitable(
